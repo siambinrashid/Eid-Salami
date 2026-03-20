@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Eid Mubarak 😏</title>
+<title>Eid Mubarak</title>
 
 <style>
 * {
@@ -14,57 +14,62 @@
 }
 
 body {
-    height: 100vh;
+    min-height: 100vh;
     background: url('https://i.ibb.co.com/KxwRNy52/images.jpg') center/cover no-repeat fixed;
     display: flex;
     justify-content: center;
     align-items: center;
     color: white;
-    overflow: hidden;
 }
 
 /* overlay */
 body::before {
     content: "";
-    position: absolute;
+    position: fixed;
     width: 100%;
     height: 100%;
     background: rgba(20,20,20,0.45);
     backdrop-filter: blur(6px);
 }
 
-/* card */
-.card {
+/* container */
+.container {
     position: relative;
-    background: rgba(255,255,255,0.1);
-    backdrop-filter: blur(15px);
-    border: 1px solid rgba(255,255,255,0.3);
-    padding: 25px;
-    border-radius: 20px;
-    width: 320px;
-    text-align: center;
     z-index: 2;
+    text-align: center;
+    width: 100%;
+    padding: 20px;
 }
 
-/* typing */
-.typing {
-    border-right: 2px solid white;
-    white-space: nowrap;
-    overflow: hidden;
-    width: 0;
-    animation: typing 3s steps(30, end) forwards;
+/* BIGGER CARD */
+.card {
+    background: rgba(255,255,255,0.12);
+    backdrop-filter: blur(18px);
+    border: 1px solid rgba(255,255,255,0.35);
+    padding: 45px;
+    border-radius: 25px;
+    width: 100%;
+    max-width: 420px;
+    margin: auto;
 }
 
-@keyframes typing {
-    to { width: 100%; }
+/* text */
+h1 {
+    font-size: 30px;
+    margin-bottom: 10px;
 }
 
-/* button */
+.sub {
+    font-size: 20px;
+    margin-bottom: 25px;
+}
+
+/* buttons */
 button {
-    margin-top: 10px;
-    padding: 10px;
+    margin-top: 12px;
+    padding: 14px;
     border: none;
-    border-radius: 10px;
+    border-radius: 12px;
     background: linear-gradient(135deg, #d9d9d9, #a6a6a6);
     color: black;
     font-weight: bold;
@@ -72,24 +77,12 @@ button {
     width: 100%;
 }
 
-/* popup */
-.popup {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%) scale(0);
-    background: rgba(255,255,255,0.1);
-    backdrop-filter: blur(15px);
-    border: 1px solid white;
-    padding: 20px;
-    border-radius: 15px;
-    text-align: center;
-    transition: 0.3s;
-    z-index: 5;
-}
-
-.popup.active {
-    transform: translate(-50%, -50%) scale(1);
+/* subtle sound button */
+.sound-btn {
+    margin-top: 15px;
+    font-size: 12px;
+    opacity: 0.7;
+    cursor: pointer;
 }
 
 /* toast */
@@ -106,57 +99,53 @@ button {
     z-index: 10;
 }
 
-/* counter */
-.counter {
-    margin-top: 12px;
-    font-size: 14px;
-    opacity: 0.9;
-    background: rgba(255,255,255,0.1);
-    padding: 8px;
-    border-radius: 10px;
-}
-
-/* confetti */
-.confetti {
-    position: absolute;
-    width: 6px;
-    height: 6px;
-    background: white;
-    animation: fall 5s linear infinite;
-}
-
-@keyframes fall {
-    0% { transform: translateY(-100px); }
-    100% { transform: translateY(100vh); }
+/* video */
+.video-box {
+    margin-top: 15px;
+    max-width: 420px;
+    margin-left: auto;
+    margin-right: auto;
 }
 </style>
 </head>
 
-<body>
+<body onclick="enableSound()">
 
-<div class="card">
-    <h2>Siam Bin Rashid 😏</h2>
-    <div class="typing">🌙 Eid Mubarak... Send Salami Please 💸</div>
+<div class="container">
 
-    <button onclick="sendBkash()">💸 Send Eidi via bKash</button>
-    <button onclick="sendNagad()">💳 Send Eidi via Nagad</button>
+    <div class="card">
+        <h1>Eid Mubarak</h1>
+        <div class="sub">Please Send Salami</div>
 
-    <div class="counter">
-        💸 <span id="count">3</span> people sent Eidi · Total: <span id="total">1200</span>৳
+        <button onclick="sendBkash()">Send via bKash</button>
+        <button onclick="sendNagad()">Send via Nagad</button>
+
+        <div class="sound-btn" onclick="enableSound(event)">
+            Tap anywhere for sound
+        </div>
     </div>
-</div>
 
-<div class="popup" id="popup">
-    <h3 id="method"></h3>
-    <p id="number"></p>
-    <button onclick="copyNumber()">Copy</button>
+    <!-- VIDEO -->
+    <div class="video-box">
+        <div style="position:relative; width:100%; padding-bottom:56%;">
+            <iframe 
+                id="videoFrame"
+                src="https://streamable.com/e/2evrhf?autoplay=1&muted=1"
+                frameborder="0"
+                allow="autoplay; fullscreen"
+                allowfullscreen
+                style="position:absolute; top:0; left:0; width:100%; height:100%; border-radius:15px;">
+            </iframe>
+        </div>
+    </div>
+
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
 const number = "01840484433";
-let currentNumber = number;
+let soundOn = false;
 
 /* toast */
 function showToast(msg){
@@ -166,12 +155,26 @@ function showToast(msg){
     setTimeout(()=> t.style.display="none", 2500);
 }
 
-/* bkash flow */
+/* enable sound */
+function enableSound(e){
+    if(e) e.stopPropagation();
+
+    if(!soundOn){
+        let frame = document.getElementById("videoFrame");
+        frame.src = "https://streamable.com/e/2evrhf?autoplay=1"; // remove muted
+        soundOn = true;
+        showToast("Sound enabled");
+    }
+}
+
+/* bkash */
 function sendBkash(){
+    enableSound();
+
     if (navigator.vibrate) navigator.vibrate(120);
 
     navigator.clipboard.writeText(number);
-    showToast("bKash number copied 💸");
+    showToast("bKash number copied");
 
     window.location.href = "bkash://";
 
@@ -180,51 +183,18 @@ function sendBkash(){
     }, 1200);
 }
 
-/* nagad flow */
+/* nagad */
 function sendNagad(){
+    enableSound();
+
     if (navigator.vibrate) navigator.vibrate(120);
 
     navigator.clipboard.writeText(number);
-    showToast("Nagad number copied 💳");
+    showToast("Nagad number copied");
 
     setTimeout(() => {
         showToast("Open Nagad & paste number");
     }, 1000);
-}
-
-/* popup copy */
-function copyNumber() {
-    navigator.clipboard.writeText(currentNumber);
-    showToast("Copied 😏");
-}
-
-/* fake counter */
-let count = 3;
-let total = 1200;
-
-setInterval(() => {
-    let amounts = [50, 100, 200, 500];
-    let names = ["Rahim","Karim","Sakib","Hasan"];
-
-    let add = amounts[Math.floor(Math.random()*amounts.length)];
-    let name = names[Math.floor(Math.random()*names.length)];
-
-    count++;
-    total += add;
-
-    document.getElementById("count").innerText = count;
-    document.getElementById("total").innerText = total;
-
-    showToast(name + " sent " + add + "৳ 💸");
-}, 7000);
-
-/* confetti */
-for(let i=0;i<25;i++){
-    let c = document.createElement("div");
-    c.className="confetti";
-    c.style.left = Math.random()*100 + "vw";
-    c.style.animationDuration = (3 + Math.random()*3) + "s";
-    document.body.appendChild(c);
 }
 </script>
 
