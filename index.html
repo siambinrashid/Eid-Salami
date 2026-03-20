@@ -15,7 +15,7 @@
 
 body {
     height: 100vh;
-    background: radial-gradient(circle at top, #111, #000);
+    background: url('https://i.ibb.co.com/KxwRNy52/images.jpg') center/cover no-repeat fixed;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -23,71 +23,66 @@ body {
     overflow: hidden;
 }
 
-/* Glow */
+/* overlay */
 body::before {
     content: "";
     position: absolute;
-    width: 400px;
-    height: 400px;
-    background: gold;
-    filter: blur(180px);
-    top: -100px;
+    width: 100%;
+    height: 100%;
+    background: rgba(20,20,20,0.45);
+    backdrop-filter: blur(6px);
 }
 
-/* Card */
+/* card */
 .card {
+    position: relative;
+    background: rgba(255,255,255,0.1);
     backdrop-filter: blur(15px);
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,215,0,0.2);
+    border: 1px solid rgba(255,255,255,0.3);
     padding: 25px;
     border-radius: 20px;
     width: 320px;
     text-align: center;
-    box-shadow: 0 0 40px rgba(255,215,0,0.2);
     z-index: 2;
 }
 
-/* Name */
-h2 {
-    margin: 10px 0;
-    color: gold;
+/* typing */
+.typing {
+    border-right: 2px solid white;
+    white-space: nowrap;
+    overflow: hidden;
+    width: 0;
+    animation: typing 3s steps(30, end) forwards;
 }
 
-/* Eid text */
-.eid {
-    font-size: 20px;
-    margin-bottom: 10px;
+@keyframes typing {
+    to { width: 100%; }
 }
 
-/* Button */
+/* button */
 button {
     margin-top: 10px;
     padding: 10px;
     border: none;
     border-radius: 10px;
-    background: gold;
+    background: linear-gradient(135deg, #d9d9d9, #a6a6a6);
     color: black;
     font-weight: bold;
     cursor: pointer;
+    width: 100%;
 }
 
-/* QR */
-.qr {
-    width: 180px;
-    margin-top: 15px;
-    border-radius: 12px;
-}
-
-/* Popup */
+/* popup */
 .popup {
     position: fixed;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%) scale(0);
-    background: black;
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(15px);
+    border: 1px solid white;
     padding: 20px;
     border-radius: 15px;
-    border: 1px solid gold;
     text-align: center;
     transition: 0.3s;
     z-index: 5;
@@ -97,91 +92,139 @@ button {
     transform: translate(-50%, -50%) scale(1);
 }
 
-/* Money animation */
-.money {
-    position: absolute;
-    color: gold;
-    font-size: 20px;
-    animation: fall linear infinite;
+/* toast */
+.toast {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0,0,0,0.8);
+    padding: 10px 15px;
+    border-radius: 10px;
+    font-size: 14px;
+    display: none;
+    z-index: 10;
 }
 
-@keyframes fall {
-    0% { transform: translateY(-100px); opacity: 1; }
-    100% { transform: translateY(100vh); opacity: 0; }
+/* counter */
+.counter {
+    margin-top: 12px;
+    font-size: 14px;
+    opacity: 0.9;
+    background: rgba(255,255,255,0.1);
+    padding: 8px;
+    border-radius: 10px;
 }
 
-/* Confetti */
+/* confetti */
 .confetti {
     position: absolute;
     width: 6px;
     height: 6px;
-    background: gold;
-    animation: confetti 5s linear infinite;
+    background: white;
+    animation: fall 5s linear infinite;
 }
 
-@keyframes confetti {
-    0% { transform: translateY(-100px) rotate(0); }
-    100% { transform: translateY(100vh) rotate(720deg); }
+@keyframes fall {
+    0% { transform: translateY(-100px); }
+    100% { transform: translateY(100vh); }
 }
-
 </style>
 </head>
 
 <body>
 
 <div class="card">
-
     <h2>Siam Bin Rashid 😏</h2>
+    <div class="typing">🌙 Eid Mubarak... Send Salami Please 💸</div>
 
-    <div class="eid">🌙 Eid Mubarak ✨</div>
-    <p>Send Salami Please 💸</p>
+    <button onclick="sendBkash()">💸 Send Eidi via bKash</button>
+    <button onclick="sendNagad()">💳 Send Eidi via Nagad</button>
 
-    <button onclick="showPopup()">💸 Send Here</button>
-
-    <img src="YOUR_QR_IMAGE_HERE" class="qr">
-
-    <button onclick="playMusic()">🎵 Play Vibe</button>
-
+    <div class="counter">
+        💸 <span id="count">3</span> people sent Eidi · Total: <span id="total">1200</span>৳
+    </div>
 </div>
 
 <div class="popup" id="popup">
-    <h3>bKash Number</h3>
-    <p id="number">01840484433</p>
+    <h3 id="method"></h3>
+    <p id="number"></p>
     <button onclick="copyNumber()">Copy</button>
 </div>
 
+<div class="toast" id="toast"></div>
+
 <script>
-function showPopup() {
-    document.getElementById("popup").classList.add("active");
+const number = "01840484433";
+let currentNumber = number;
+
+/* toast */
+function showToast(msg){
+    let t = document.getElementById("toast");
+    t.innerText = msg;
+    t.style.display = "block";
+    setTimeout(()=> t.style.display="none", 2500);
 }
 
+/* bkash flow */
+function sendBkash(){
+    if (navigator.vibrate) navigator.vibrate(120);
+
+    navigator.clipboard.writeText(number);
+    showToast("bKash number copied 💸");
+
+    window.location.href = "bkash://";
+
+    setTimeout(() => {
+        showToast("Paste & send to " + number);
+    }, 1200);
+}
+
+/* nagad flow */
+function sendNagad(){
+    if (navigator.vibrate) navigator.vibrate(120);
+
+    navigator.clipboard.writeText(number);
+    showToast("Nagad number copied 💳");
+
+    setTimeout(() => {
+        showToast("Open Nagad & paste number");
+    }, 1000);
+}
+
+/* popup copy */
 function copyNumber() {
-    navigator.clipboard.writeText("01840484433");
-    alert("Copied 😏");
+    navigator.clipboard.writeText(currentNumber);
+    showToast("Copied 😏");
 }
 
-/* Money rain */
-for(let i=0;i<20;i++){
-    let m = document.createElement("div");
-    m.className="money";
-    m.innerText="💸";
-    m.style.left = Math.random()*100 + "vw";
-    m.style.animationDuration = (3 + Math.random()*3) + "s";
-    document.body.appendChild(m);
-}
+/* fake counter */
+let count = 3;
+let total = 1200;
 
-/* Confetti */
-for(let i=0;i<30;i++){
+setInterval(() => {
+    let amounts = [50, 100, 200, 500];
+    let names = ["Rahim","Karim","Sakib","Hasan"];
+
+    let add = amounts[Math.floor(Math.random()*amounts.length)];
+    let name = names[Math.floor(Math.random()*names.length)];
+
+    count++;
+    total += add;
+
+    document.getElementById("count").innerText = count;
+    document.getElementById("total").innerText = total;
+
+    showToast(name + " sent " + add + "৳ 💸");
+}, 7000);
+
+/* confetti */
+for(let i=0;i<25;i++){
     let c = document.createElement("div");
     c.className="confetti";
     c.style.left = Math.random()*100 + "vw";
     c.style.animationDuration = (3 + Math.random()*3) + "s";
     document.body.appendChild(c);
-}
-
-/* Music */
-function playMusic(){
-    window.open("https://www.youtube.com/watch?v=xpVfcZ0ZcFM", "_blank");
 }
 </script>
 
